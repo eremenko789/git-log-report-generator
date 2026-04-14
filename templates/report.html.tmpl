@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{.Title}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script>
+    (() => {
+      const saved = localStorage.getItem('theme');
+      if (saved) {
+        document.documentElement.dataset.theme = saved;
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --border: #d1d5db;
+      --accent: #2563eb;
+      --plus: #166534;
+      --minus: #991b1b;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f172a;
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --card: #1e293b;
+        --border: #334155;
+        --accent: #60a5fa;
+        --plus: #4ade80;
+        --minus: #f87171;
+      }
+    }
+    :root[data-theme='light'] {
+      --bg: #f5f7fa;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --border: #d1d5db;
+      --accent: #2563eb;
+      --plus: #166534;
+      --minus: #991b1b;
+    }
+    :root[data-theme='dark'] {
+      --bg: #0f172a;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --card: #1e293b;
+      --border: #334155;
+      --accent: #60a5fa;
+      --plus: #4ade80;
+      --minus: #f87171;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .header, .summary, .authors, .commit {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .header-top { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+    .btn {
+      min-height: 44px;
+      min-width: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      padding: 8px 14px;
+    }
+    .muted { color: var(--muted); }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .plus { color: var(--plus); border-color: color-mix(in srgb, var(--plus), var(--border) 60%); }
+    .minus { color: var(--minus); border-color: color-mix(in srgb, var(--minus), var(--border) 60%); }
+    .search {
+      width: 100%;
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      background: transparent;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .commit h3 { margin: 0 0 8px; }
+    .commit pre {
+      margin: 10px 0;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      background: color-mix(in srgb, var(--card), var(--border) 30%);
+      padding: 10px;
+      border-radius: 8px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="header">
+      <div class="header-top">
+        <h1>{{.Title}}</h1>
+        <button id="theme-toggle" class="btn" type="button">Toggle theme</button>
+      </div>
+      <p class="muted">Repository: <strong>{{.RepoName}}</strong></p>
+      <p class="muted">Range: <code>{{.FromRef}}..{{.ToRef}}</code></p>
+      <p class="muted">Generated at: {{.GeneratedAt}}</p>
+    </section>
+
+    <section class="summary">
+      <h2>Summary</h2>
+      <div class="grid">
+        <div><strong>{{.Summary.Commits}}</strong><br /><span class="muted">Commits</span></div>
+        <div><strong>{{.Summary.Authors}}</strong><br /><span class="muted">Authors</span></div>
+        <div><strong class="plus">+{{.Summary.Insertions}}</strong><br /><span class="muted">Insertions</span></div>
+        <div><strong class="minus">-{{.Summary.Deletions}}</strong><br /><span class="muted">Deletions</span></div>
+      </div>
+    </section>
+
+    <section class="authors">
+      <h2>Authors</h2>
+      <ul>
+        {{range .Authors}}
+        <li>{{.Name}} ({{.Email}}) - {{.Count}}</li>
+        {{end}}
+      </ul>
+    </section>
+
+    <input id="search" class="search" type="text" placeholder="Filter commits by subject..." />
+
+    <section id="commits">
+      {{range .Commits}}
+      <article id="commit-{{.ShortHash}}" class="commit" data-subject="{{.Subject}}">
+        <h3>{{.Subject}}</h3>
+        <p>
+          <a href="#commit-{{.ShortHash}}">{{.ShortHash}}</a>
+          · {{.AuthorName}} ({{.AuthorEmail}})
+          · <time datetime="{{.Date.Format "2006-01-02T15:04:05Z07:00"}}">{{.Date.Format "2006-01-02 15:04:05Z07:00"}}</time>
+          · {{.RelDate}}
+        </p>
+        {{if .Refs}}<p class="muted">Refs: {{.Refs}}</p>{{end}}
+        <div class="chips">
+          <span class="chip">files: {{len .Files}}</span>
+          <span class="chip plus">+{{.Insertions}}</span>
+          <span class="chip minus">-{{.Deletions}}</span>
+        </div>
+        {{if .SafeBody}}<pre>{{.SafeBody}}</pre>{{end}}
+        {{if .Files}}
+        <details>
+          <summary>Changed files</summary>
+          <ul>
+            {{range .Files}}
+            <li><code>{{.Status}}</code> {{.Path}}</li>
+            {{end}}
+          </ul>
+        </details>
+        {{end}}
+      </article>
+      {{end}}
+    </section>
+  </div>
+
+  <script>
+    const root = document.documentElement;
+    const toggle = document.getElementById('theme-toggle');
+    toggle.addEventListener('click', () => {
+      const current = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = current;
+      localStorage.setItem('theme', current);
+    });
+
+    const search = document.getElementById('search');
+    search.addEventListener('input', () => {
+      const needle = search.value.toLowerCase();
+      document.querySelectorAll('.commit').forEach((card) => {
+        const subject = (card.dataset.subject || '').toLowerCase();
+        card.style.display = subject.includes(needle) ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>
