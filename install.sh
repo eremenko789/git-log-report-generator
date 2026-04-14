@@ -58,7 +58,7 @@ DOWNLOAD_URL=""
 echo "Resolving release metadata from ${REPO}..."
 curl -fsSL "${RELEASE_API_URL}" -o "${RELEASE_JSON}"
 
-DOWNLOAD_URL="$(sed -n 's/.*"browser_download_url":[[:space:]]*"\([^"]*\)".*/\1/p' "${RELEASE_JSON}" | rg "${ASSET_BASENAME}" | head -n 1 || true)"
+DOWNLOAD_URL="$(sed -n 's/.*"browser_download_url":[[:space:]]*"\([^"]*\)".*/\1/p' "${RELEASE_JSON}" | grep -F "${ASSET_BASENAME}" | head -n 1 || true)"
 
 if [[ -z "${DOWNLOAD_URL}" ]]; then
   echo "Could not find asset ${ASSET_BASENAME} in release ${VERSION}" >&2
