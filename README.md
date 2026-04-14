@@ -2,6 +2,20 @@
 
 CLI utility that generates a single static HTML report from `git log` for any revision range.
 
+## Installation
+
+Install latest release:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/eremenko789/git-log-report-generator/main/install.sh | bash
+```
+
+Install specific version:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/eremenko789/git-log-report-generator/main/install.sh | VERSION=v1.0.0 bash
+```
+
 ## Usage
 
 ```bash
