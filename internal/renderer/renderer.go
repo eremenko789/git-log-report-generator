@@ -3,7 +3,6 @@ package renderer
 import (
 	"embed"
 	"fmt"
-	"html"
 	"html/template"
 	"io"
 	"sort"
@@ -41,13 +40,13 @@ type authorStat struct {
 
 type commitView struct {
 	model.Commit
-	SafeBody template.HTML
+	SafeBody string
 	Files    []fileView
 }
 
 type fileView struct {
 	Status string
-	Path   template.HTML
+	Path   string
 }
 
 // Render writes a static HTML report to a writer.
@@ -115,9 +114,9 @@ func buildCommitViews(commits []model.Commit) []commitView {
 	for _, c := range commits {
 		files := make([]fileView, 0, len(c.Files))
 		for _, file := range c.Files {
-			files = append(files, fileView{Status: file.Status, Path: template.HTML(html.EscapeString(file.Path))})
+			files = append(files, fileView{Status: file.Status, Path: file.Path})
 		}
-		result = append(result, commitView{Commit: c, SafeBody: template.HTML(html.EscapeString(c.Body)), Files: files})
+		result = append(result, commitView{Commit: c, SafeBody: c.Body, Files: files})
 	}
 	return result
 }

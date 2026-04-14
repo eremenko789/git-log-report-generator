@@ -3,6 +3,7 @@
 GO ?= go
 GOLANGCI_LINT ?= golangci-lint
 GORELEASER ?= goreleaser
+LINT_ARGS ?= --enable errcheck --enable govet --enable staticcheck --enable unused --enable gosec
 
 help:
 	@echo "Available targets:"
@@ -14,7 +15,7 @@ help:
 	@echo "  release-snapshot  Run goreleaser snapshot build"
 
 lint:
-	$(GOLANGCI_LINT) run
+	$(GOLANGCI_LINT) run $(LINT_ARGS)
 
 test:
 	$(GO) test -race -count=1 ./...

@@ -44,6 +44,7 @@ func TestRunGeneratesHTMLReport(t *testing.T) {
 		t.Fatalf("run() failed, code=%d, stderr=%s", exitCode, stderr.String())
 	}
 
+	// #nosec G304 -- output path is created from t.TempDir() in this test.
 	content, err := os.ReadFile(output)
 	if err != nil {
 		t.Fatalf("read output: %v", err)
@@ -57,6 +58,7 @@ func TestRunGeneratesHTMLReport(t *testing.T) {
 
 func runGit(t *testing.T, repo string, args ...string) {
 	t.Helper()
+	// #nosec G204 -- test helper intentionally executes git with controlled arguments.
 	cmd := exec.Command("git", append([]string{"-C", repo}, args...)...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {

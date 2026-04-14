@@ -59,6 +59,7 @@ func GetCommits(ctx context.Context, repo, fromRef, toRef, authorFilter string, 
 }
 
 func runGit(ctx context.Context, args ...string) (string, error) {
+	// #nosec G204 -- args are constructed from explicit CLI parameters for git invocation.
 	cmd := exec.CommandContext(ctx, "git", args...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {

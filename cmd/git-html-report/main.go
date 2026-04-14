@@ -41,12 +41,12 @@ func run(args []string, stdout, stderr io.Writer) int {
 		if errors.Is(err, flag.ErrHelp) {
 			return 0
 		}
-		fmt.Fprintf(stderr, "error: %v\n", err)
+		_, _ = fmt.Fprintf(stderr, "error: %v\n", err)
 		return 1
 	}
 
 	if cfg.showVer {
-		fmt.Fprintf(stdout, "git-html-report version=%s commit=%s date=%s\n", version, commit, date)
+		_, _ = fmt.Fprintf(stdout, "git-html-report version=%s commit=%s date=%s\n", version, commit, date)
 		return 0
 	}
 
@@ -55,24 +55,26 @@ func run(args []string, stdout, stderr io.Writer) int {
 
 	commits, err := git.GetCommits(ctx, cfg.repo, cfg.fromRef, cfg.toRef, cfg.author, !cfg.noFiles)
 	if err != nil {
-		fmt.Fprintf(stderr, "error: fetch commits: %v\n", err)
+		_, _ = fmt.Fprintf(stderr, "error: fetch commits: %v\n", err)
 		return 1
 	}
 
 	outFile, err := os.Create(cfg.output)
 	if err != nil {
-		fmt.Fprintf(stderr, "error: create output file: %v\n", err)
+		_, _ = fmt.Fprintf(stderr, "error: create output file: %v\n", err)
 		return 1
 	}
-	defer outFile.Close()
+	defer func() {
+		_ = outFile.Close()
+	}()
 
 	repoName := filepath.Base(cfg.repo)
 	if err := renderer.Render(outFile, cfg.title, repoName, cfg.fromRef, cfg.toRef, time.Now(), commits); err != nil {
-		fmt.Fprintf(stderr, "error: render report: %v\n", err)
+		_, _ = fmt.Fprintf(stderr, "error: render report: %v\n", err)
 		return 1
 	}
 
-	fmt.Fprintf(stdout, "report generated: %s\n", cfg.output)
+	_, _ = fmt.Fprintf(stdout, "report generated: %s\n", cfg.output)
 	return 0
 }
 
